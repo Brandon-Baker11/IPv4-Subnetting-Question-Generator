@@ -1,5 +1,6 @@
 # pylint: disable = line-too-long
 # pylint: disable = missing-function-docstring
+# pylint: disable = invalid-name
 """ Program that will be used to practice subnetting"""
 import random
 
@@ -95,65 +96,50 @@ def get_cidr_block():
     return cidr_notation
 
 
+def get_interesting_octet():
+    for octet in subnet_mask:
+        if octet != 255:
+            int_octet_index = subnet_mask.index(octet) + 1
+            break
+
+    return int_octet_index
+
+
+def get_address_block():
+    for octet in subnet_mask:
+        if octet != 255:
+            int_octet = octet
+            break
+    block = 256 - int_octet
+
+    return block
+
+
 def get_network_add_v2():
+    net_address = []
+    index = 0
 
-    return
+    for octet in subnet_mask:
+        if octet == 255:
+            net_address.append(ip_address[index])
+            index += 1
+    add_zeroes = len(ip_address) - index
 
-
-def get_network_add():
-    """This funtion calculates a network address from the function new_host_add()"""
-
-    ip_classes = ["a", "b", "c"]
-    # divisible_by = []
-    selected_class = random.choice(ip_classes)
-
-    # Class A address
-    if selected_class == "a":
-        ip_octets = [10]
-        for _ in range(3):
-            ip_octets.append(0)
-    # Class B address
-    elif selected_class == "b":
-        ip_octets = [172]
-        ip_octets.append(random.randint(16, 31))
-        for _ in range(2):
-            ip_octets.append(0)
-    # Class C address
-    elif selected_class == "c":
-        ip_octets = [192, 168]
-        for _ in range(2):
-            ip_octets.append(0)
-
-    net_address = f"{ip_octets[0]}.{ip_octets[1]}.{ip_octets[2]}.{ip_octets[3]}"
+    for _ in range(add_zeroes):
+        net_address.append(0)
 
     return net_address
 
 
-num = [1, 2, 3, 4, 5, 6, 7]
 ip_address = new_host_address()
 subnet_mask = get_variable_sub()
 cidr_block = get_cidr_block()
-print(ip_address, subnet_mask, cidr_block)
-# for item in num:
-#     print(num.index(item))
-# new_ip_class = get_variable_sub_v2()
-
-# def subnetting_tool():
-#     """ This function will generate an IP address and do the calculations to get the Subnet Mask, Network and Broadcast addresses,
-#     and first and last hosts"""
-#     ip_classes = ["a", "b", "c"]
-#     masks = [128, 192, 224, 240, 248, 252, 254]
-#     cidr_blocks_a = ["/9", "/10", "/11", "/12", "/13", "/14", "/15"]
-#     cidr_blocks_b = ["/17", "/18", "/19", "/20", "/21", "/22", "/23"]
-#     cidr_blocks_c = ["/25", "/26", "/27", "/28", "/29", "/30", "/31"]
-
-#     return
-
-
-# subnet_cidr = get_variable_sub()
-# print(
-#     f"The IP address and subnet is {new_host_add()}{subnet_cidr[1]} {subnet_cidr[0]}")
-# print(get_network_add())
+network_address = get_network_add_v2()
+interesting_octet = get_interesting_octet()
+address_block = get_address_block()
+print(ip_address, cidr_block, subnet_mask, network_address)
+print(f"The Interesting Octet is: {interesting_octet}")
+print(f"The Address Block is: {address_block}")
 
 
 # Questions that only require a host IP and subnet or CIDR block
