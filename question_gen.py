@@ -115,7 +115,10 @@ def get_address_block():
     return block
 
 
-def get_network_add_v2():
+def get_network_add():
+    # network is only correct when it is the first subnet (ends with 0)
+    # use the address block in some way to account for subnets that are further down the line
+
     net_address = []
     index = 0
 
@@ -125,18 +128,43 @@ def get_network_add_v2():
             index += 1
     add_zeroes = len(ip_address) - index
 
-    for _ in range(add_zeroes):
-        net_address.append(0)
+    block_beginning = 0
+    block_end = address_block - 1
+
+    if address_block >= block_beginning and address_block <= block_end:
+        while address_block >= block_beginning and address_block <= block_end:
+            block_beginning += address_block
+            block_end += address_block
+        # network_start =
+
+    if len(net_address) < 4:
+        for _ in range(add_zeroes):
+            net_address.append(0)
 
     return net_address
+
+
+def get_broadcast_address():
+
+    return
+
+
+def get_first_host():
+
+    return
+
+
+def get_last_host():
+
+    return
 
 
 ip_address = new_host_address()
 subnet_mask = get_variable_sub()
 cidr_block = get_cidr_block()
-network_address = get_network_add_v2()
-interesting_octet = get_interesting_octet()
 address_block = get_address_block()
+interesting_octet = get_interesting_octet()
+network_address = get_network_add()
 print(ip_address, cidr_block, subnet_mask, network_address)
 print(f"The Interesting Octet is: {interesting_octet}")
 print(f"The Address Block is: {address_block}")
