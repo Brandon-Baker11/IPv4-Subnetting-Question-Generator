@@ -29,7 +29,7 @@ def new_host_address():
     return host_address
 
 
-def get_variable_sub():
+def get_variable_subnet():
     masks = [128, 192, 224, 240, 248, 252, 254, 255]
 
     if ip_address[0] == 10:
@@ -128,14 +128,16 @@ def get_network_add():
             index += 1
     add_zeroes = len(ip_address) - index
 
-    block_beginning = 0
-    block_end = address_block - 1
+    boundary_start = 0
+    boundary_end = address_block - 1
+    network_start = ip_address[interesting_octet]
 
-    if address_block >= block_beginning and address_block <= block_end:
-        while address_block >= block_beginning and address_block <= block_end:
-            block_beginning += address_block
-            block_end += address_block
-        # network_start =
+    if not ip_address[interesting_octet] <= boundary_start and not ip_address[interesting_octet] >= boundary_end:
+        while not ip_address[interesting_octet] >= boundary_start and not ip_address[interesting_octet] <= boundary_end:
+            boundary_start += address_block
+            boundary_end += address_block
+        # replace the interesting octet with the boundary_start to get the network address
+        ip_address[network_start] = boundary_start
 
     if len(net_address) < 4:
         for _ in range(add_zeroes):
@@ -160,7 +162,7 @@ def get_last_host():
 
 
 ip_address = new_host_address()
-subnet_mask = get_variable_sub()
+subnet_mask = get_variable_subnet()
 cidr_block = get_cidr_block()
 address_block = get_address_block()
 interesting_octet = get_interesting_octet()
@@ -193,3 +195,4 @@ q_pool_2 = [
     "Network [network_add] needs to be divided into [x amount] subnets, while keeping as many usable hosts in each subnet as possible. What mask should be used"
 
 ]
+
