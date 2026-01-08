@@ -99,7 +99,7 @@ def get_cidr_block():
 def get_interesting_octet():
     for octet in subnet_mask:
         if octet != 255:
-            int_octet_index = subnet_mask.index(octet) + 1
+            int_octet_index = subnet_mask.index(octet)
             break
 
     return int_octet_index
@@ -116,8 +116,6 @@ def get_address_block():
 
 
 def get_network_add():
-    # network is only correct when it is the first subnet (ends with 0)
-    # use the address block in some way to account for subnets that are further down the line
 
     net_address = []
     index = 0
@@ -126,29 +124,31 @@ def get_network_add():
         if octet == 255:
             net_address.append(ip_address[index])
             index += 1
-    add_zeroes = len(ip_address) - index
 
     boundary_start = 0
     boundary_end = address_block - 1
-    network_start = ip_address[interesting_octet]
 
-    if not ip_address[interesting_octet] <= boundary_start and not ip_address[interesting_octet] >= boundary_end:
-        while not ip_address[interesting_octet] >= boundary_start and not ip_address[interesting_octet] <= boundary_end:
+    if ip_address[interesting_octet] > boundary_start and ip_address[interesting_octet] > boundary_end:
+        while ip_address[interesting_octet] > boundary_start and ip_address[interesting_octet] > boundary_end:
             boundary_start += address_block
             boundary_end += address_block
-        # replace the interesting octet with the boundary_start to get the network address
-        ip_address[network_start] = boundary_start
+        net_address.append(boundary_start)
 
     if len(net_address) < 4:
-        for _ in range(add_zeroes):
+        while len(net_address) < 4:
             net_address.append(0)
 
     return net_address
 
 
 def get_broadcast_address():
-
-    return
+    bcast_address = network_address
+    boundary_end = address_block - 1
+    bcast_octet = bcast_address[interesting_octet]
+    bcast_address[interesting_octet] = bcast_octet + boundary_end
+    # if octet in the subnet mask == 0, replace it with 255
+    # also, try to use the cidr block to determine which octet to change, current brandon is too tired to think straight...
+    return bcast_address
 
 
 def get_first_host():
@@ -167,9 +167,15 @@ cidr_block = get_cidr_block()
 address_block = get_address_block()
 interesting_octet = get_interesting_octet()
 network_address = get_network_add()
-print(ip_address, cidr_block, subnet_mask, network_address)
-print(f"The Interesting Octet is: {interesting_octet}")
-print(f"The Address Block is: {address_block}")
+broadcast_address = get_broadcast_address()
+# print(ip_address, cidr_block, subnet_mask, network_address)
+print(f"IP Address: {ip_address}")
+print(f"CIDR Block: {cidr_block}")
+print(f"Subnet Mask: {subnet_mask}")
+print(f"Network Address: {network_address}")
+print(f"Broadcast Address: {broadcast_address}")
+print(f"Interesting Octet: {interesting_octet}")
+print(f"Address Block: {address_block}")
 
 
 # Questions that only require a host IP and subnet or CIDR block
@@ -195,4 +201,3 @@ q_pool_2 = [
     "Network [network_add] needs to be divided into [x amount] subnets, while keeping as many usable hosts in each subnet as possible. What mask should be used"
 
 ]
-
