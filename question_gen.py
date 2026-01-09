@@ -142,24 +142,69 @@ def get_network_add():
 
 
 def get_broadcast_address():
-    bcast_address = network_address
+    bcast_address = []
+    index = 0
+    for octet in subnet_mask:
+        if octet == 255:
+            bcast_address.append(ip_address[index])
+            index += 1
+    
+    boundary_start = 0
     boundary_end = address_block - 1
-    bcast_octet = bcast_address[interesting_octet]
-    bcast_address[interesting_octet] = bcast_octet + boundary_end
-    # if octet in the subnet mask == 0, replace it with 255
-    # also, try to use the cidr block to determine which octet to change, current brandon is too tired to think straight...
+
+    if ip_address[interesting_octet] > boundary_start and ip_address[interesting_octet] > boundary_end:
+        while ip_address[interesting_octet] > boundary_start and ip_address[interesting_octet] > boundary_end:
+            boundary_start += address_block
+            boundary_end += address_block
+        bcast_address.append(boundary_end)
+
+    if len(bcast_address) < 4:
+        while len(bcast_address) < 4:
+            bcast_address.append(255)
+
     return bcast_address
 
 
 def get_first_host():
-
-    return
+    first_host = []
+    index = 0
+    
+    for _ in network_address:
+        first_host.append(network_address[index])
+        index += 1
+    first_host[3] = first_host[3] + 1
+    
+    return first_host
 
 
 def get_last_host():
+    last_host = []
+    index = 0
+    
+    for _ in broadcast_address:
+        last_host.append(broadcast_address[index])
+        index += 1
+    last_host[3] = last_host[3] - 1
+    
+    return last_host
 
-    return
+def get_placement():
+    num_roll = random.randint(1, 6)
 
+    if num_roll == 1:
+        place = "first"
+    elif num_roll == 2:
+        place = "second"
+    elif num_roll == 3:
+        place = "third"
+    elif num_roll == 4:
+        place = "fourth"
+    elif num_roll == 5:
+        place = "fifth"
+    elif num_roll == 6:
+        place = "sixth"
+
+    return place
 
 ip_address = new_host_address()
 subnet_mask = get_variable_subnet()
@@ -168,6 +213,9 @@ address_block = get_address_block()
 interesting_octet = get_interesting_octet()
 network_address = get_network_add()
 broadcast_address = get_broadcast_address()
+first_valid_host = get_first_host()
+last_valid_host = get_last_host()
+placement = get_placement()
 # print(ip_address, cidr_block, subnet_mask, network_address)
 print(f"IP Address: {ip_address}")
 print(f"CIDR Block: {cidr_block}")
@@ -176,6 +224,9 @@ print(f"Network Address: {network_address}")
 print(f"Broadcast Address: {broadcast_address}")
 print(f"Interesting Octet: {interesting_octet}")
 print(f"Address Block: {address_block}")
+print(f"First Host: {first_valid_host}")
+print(f"Last Host: {last_valid_host}")
+
 
 
 # Questions that only require a host IP and subnet or CIDR block
