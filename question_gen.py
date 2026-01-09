@@ -148,7 +148,7 @@ def get_broadcast_address():
         if octet == 255:
             bcast_address.append(ip_address[index])
             index += 1
-    
+
     boundary_start = 0
     boundary_end = address_block - 1
 
@@ -168,25 +168,26 @@ def get_broadcast_address():
 def get_first_host():
     first_host = []
     index = 0
-    
+
     for _ in network_address:
         first_host.append(network_address[index])
         index += 1
     first_host[3] = first_host[3] + 1
-    
+
     return first_host
 
 
 def get_last_host():
     last_host = []
     index = 0
-    
+
     for _ in broadcast_address:
         last_host.append(broadcast_address[index])
         index += 1
     last_host[3] = last_host[3] - 1
-    
+
     return last_host
+
 
 def get_placement():
     num_roll = random.randint(1, 6)
@@ -206,6 +207,77 @@ def get_placement():
 
     return place
 
+
+def num_of_subnets():
+    # may be possible to use the cidr block lists with conditionals and match them with the correct amount of subnets/hosts for that segment
+    return
+
+
+def num_of_hosts():
+
+    return
+
+
+def generate_question():
+
+    num_roll = random.randint(1, 24)
+
+    if num_roll == 1:
+        subnetting_question = f"What valid host range is the IP address {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]}{cidr_block} a part of?"
+    elif num_roll == 2:
+        subnetting_question = f"What valid host range is the IP address {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} a part of?"
+    elif num_roll == 3:
+        subnetting_question = f"Which subnet does host {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]}{cidr_block} belong to?"
+    elif num_roll == 4:
+        subnetting_question = f"Which subnet does host {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belong to?"
+    elif num_roll == 5:
+        subnetting_question = f"What subnet does host {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]}{cidr_block} belong to?"
+    elif num_roll == 6:
+        subnetting_question = f"What subnet does host {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belong to?"
+    elif num_roll == 7:
+        subnetting_question = f"Your server needs to be assigned the last usable host address on the {placement} subnet of network {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]}{cidr_block}. What address would you assign to the server?"
+    elif num_roll == 8:
+        subnetting_question = f"Your server needs to be assigned the last usable host address on the {placement} subnet of network {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. What address would you assign to the server?"
+    elif num_roll == 9:
+        subnetting_question = f"What is the first valid host address on the subnet that host {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belongs to?"
+    elif num_roll == 10:
+        subnetting_question = f"What is the first valid host address on the subnet that host {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]} {cidr_block} belongs to?"
+    elif num_roll == 11:
+        subnetting_question = f"What is the broadcast address of the subnet that host {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]}{cidr_block} is a part of?"
+    elif num_roll == 12:
+        subnetting_question = f"What is the broadcast address of the subnet that host {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} is a part of?"
+    elif num_roll == 13:
+        subnetting_question = f"What is the last valid host address on the subnet that host {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]}{cidr_block} belongs to?"
+    elif num_roll == 14:
+        subnetting_question = f"What is the last valid host address on the subnet that host {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belongs to?"
+    elif num_roll == 15:
+        subnetting_question = f"What is the broadcast address of network {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]}{cidr_block}?"
+    elif num_roll == 16:
+        subnetting_question = f"What is the broadcast address of network {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+    elif num_roll == 17:
+        subnetting_question = f"You need to assign a server the last valid host address on the subnet {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]}{cidr_block}. What IP address would you assign?"
+    elif num_roll == 18:
+        subnetting_question = f"You need to assign a server the last valid host address on the subnet {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. What IP address would you assign?"
+    elif num_roll == 19:
+        subnetting_question = f"How many subnets and hosts per subnet can you get from the network {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]}{cidr_block}?"
+    elif num_roll == 20:
+        subnetting_question = f"How many subnets and hosts per subnet can you get from the network {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+    elif num_roll == 21:
+        subnetting_question = f"What is the last valid host on subnet {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]}{cidr_block}?"
+    elif num_roll == 22:
+        subnetting_question = f"What is the last valid host on subnet {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+    elif num_roll == 23:
+        subnetting_question = f"You have the following subnetted network {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]}{cidr_block}. You need to assign your router the first usable host address on the {placement}. subnet. What address would you use?"
+    elif num_roll == 24:
+        subnetting_question = f"You have the following subnetted network {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. You need to assign your router the first usable host address on the {placement}. subnet. What address would you use?"
+    # elif num_roll == 25:
+    #     subnetting_question = f"How many subnets are available with the network {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]}{cidr_block}"
+    # elif num_roll == 26:
+    #     subnetting_question = f"How many subnets are available with the network {network_address[0]}.{network_address[1]}.{network_address[2]}.{network_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+
+    return subnetting_question
+
+
 ip_address = new_host_address()
 subnet_mask = get_variable_subnet()
 cidr_block = get_cidr_block()
@@ -216,39 +288,38 @@ broadcast_address = get_broadcast_address()
 first_valid_host = get_first_host()
 last_valid_host = get_last_host()
 placement = get_placement()
+question = generate_question()
 # print(ip_address, cidr_block, subnet_mask, network_address)
-print(f"IP Address: {ip_address}")
-print(f"CIDR Block: {cidr_block}")
-print(f"Subnet Mask: {subnet_mask}")
-print(f"Network Address: {network_address}")
-print(f"Broadcast Address: {broadcast_address}")
-print(f"Interesting Octet: {interesting_octet}")
-print(f"Address Block: {address_block}")
-print(f"First Host: {first_valid_host}")
-print(f"Last Host: {last_valid_host}")
-
+# print(f"IP Address: {ip_address}")
+# print(f"CIDR Block: {cidr_block}")
+# print(f"Subnet Mask: {subnet_mask}")
+# print(f"Network Address: {network_address}")
+# print(f"Broadcast Address: {broadcast_address}")
+# print(f"Interesting Octet: {interesting_octet}")
+# print(f"Address Block: {address_block}")
+# print(f"First Host: {first_valid_host}")
+# print(f"Last Host: {last_valid_host}")
+# print(f"Placement {placement}")
+print(question)
 
 
 # Questions that only require a host IP and subnet or CIDR block
-q_pool_1 = [
-    "What valid host range is the IP address [ip address/CIDR] a part of?",
-    "What is the first valid host address on the subnet that host [ip address subnet mask] belongs to?",
-    "Which subnet does host [hostip/cidr] belong to? (random host)",
-    "What is the broadcast address of the subnet that host [ipaddress/cidr] is a part of?",
-    "What subnet does host [hostip/cidr] belong to?",
-    "What is the last valid host address on the subnet that host [hostip/cidr] belongs to?"
-]
-q_pool_2 = [
-    "Your server needs to be assigned the last usable host address on the 5th subnet of network [subnetip/CIDR]. What address would you assign to the server?",
-    "You need to divide the [subnetadd] into [x amount] of subnets with [x amount] of hosts per subnet. What subnet mask should you use?",
-    "What is the broadcast address of network [subnetadd/cidr]?",
-    "You need to subnet the [subnetadd] network into [x amount] of different subnets. What subnet mask would you use?",
-    "You need to assign a server the last valid host address on the subnet [subnetadd/cidr]. What IP address would you assign?",
-    "How many subnets and hosts per subnet can you get from the network [subnetadd/cidr]?",
-    "What is the last valid host on subnet [subnetadd/cidr]?",
-    "You have been given the [subnetadd] network. You need to design a subnet mask that will give you [x amount] of subnets and up to [x amount] of hosts. What subnet mask should you use?",
-    "You have the following subnetted network [subnetadd/cidr]. You need to assign your router the first usable host address on the third/fourth/fifth/etc. subnet. What address would you use?",
-    "How many subnets are available with the network [subnet/ip]?"
-    "Network [network_add] needs to be divided into [x amount] subnets, while keeping as many usable hosts in each subnet as possible. What mask should be used"
 
-]
+# "What valid host range is the IP address [ip address/CIDR] a part of?",
+# "What is the first valid host address on the subnet that host [ip address subnet mask] belongs to?",
+# "Which subnet does host [hostip/cidr] belong to? (random host)",
+# "What is the broadcast address of the subnet that host [ipaddress/cidr] is a part of?",
+# "What subnet does host [hostip/cidr] belong to?",
+# "What is the last valid host address on the subnet that host [hostip/cidr] belongs to?"
+
+# "Your server needs to be assigned the last usable host address on the 5th subnet of network [subnetip/CIDR]. What address would you assign to the server?",
+# "**You need to divide the [subnetadd] into [x amount] of subnets with [x amount] of hosts per subnet. What subnet mask should you use?",
+# "What is the broadcast address of network [subnetadd/cidr]?",
+# "You need to subnet the [subnetadd] network into [x amount] of different subnets. What subnet mask would you use?",
+# "You need to assign a server the last valid host address on the subnet [subnetadd/cidr]. What IP address would you assign?",
+# "How many subnets and hosts per subnet can you get from the network [subnetadd/cidr]?",
+# "What is the last valid host on subnet [subnetadd/cidr]?",
+# "You have been given the [subnetadd] network. You need to design a subnet mask that will give you [x amount] of subnets and up to [x amount] of hosts. What subnet mask should you use?",
+# "You have the following subnetted network [subnetadd/cidr]. You need to assign your router the first usable host address on the third/fourth/fifth/etc. subnet. What address would you use?",
+# "How many subnets are available with the network [subnet/ip]?"
+# "Network [network_add] needs to be divided into [x amount] subnets, while keeping as many usable hosts in each subnet as possible. What mask should be used"
