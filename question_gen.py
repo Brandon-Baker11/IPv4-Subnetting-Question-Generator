@@ -23,7 +23,6 @@ def new_host_address():
         for _ in range(2):
             ip_octets.append(random.randint(0, 255))
 
-    # ip_address = f"{ip_octets[0]}.{ip_octets[1]}.{ip_octets[2]}.{ip_octets[3]}"
     host_address = ip_octets
 
     return host_address
@@ -74,6 +73,7 @@ def get_variable_subnet():
 
 def get_cidr_block():
     masks = [128, 192, 224, 240, 248, 252, 254, 255]
+    cidr_notation = ""
 
     if subnet_mask[1] != 255:
         cidr_blocks_a = ["/9", "/10", "/11", "/12", "/13", "/14", "/15", "16"]
@@ -191,6 +191,7 @@ def get_last_host():
 
 def get_placement():
     num_roll = random.randint(1, 6)
+    place = ""
 
     if num_roll == 1:
         place = "first"
@@ -208,19 +209,44 @@ def get_placement():
     return place
 
 
-def num_of_subnets():
-    # may be possible to use the cidr block lists with conditionals and match them with the correct amount of subnets/hosts for that segment
-    return
+def get_number_of_subnets():
+    masks = [128, 192, 224, 240, 248, 252, 254, 255]
+    borrowed_bits = 0
+    available_subnets = 0
+
+    if ip_address[0] == 10:
+        for _ in subnet_mask[1:]:
+            if _ == 255:
+                borrowed_bits += 8
+            else:
+                borrowed_bits += masks.index(_)
+                break
+        available_subnets = 2 ** (borrowed_bits + 1)
+
+    elif ip_address[0] == 172:
+        for _ in subnet_mask[2:]:
+            if _ == 255:
+                borrowed_bits += 8
+            else:
+                borrowed_bits += masks.index(_)
+                break
+        available_subnets = 2 ** (borrowed_bits + 1)
+
+    elif ip_address[0] == 192:
+        borrowed_bits += masks.index(subnet_mask[3])
+        available_subnets = 2 ** (borrowed_bits + 1)
+        
+    return available_subnets
 
 
-def num_of_hosts():
+def get_number_of_hosts():
 
     return
 
 
 def generate_question():
-
     num_roll = random.randint(1, 24)
+    subnetting_question = ""
 
     if num_roll == 1:
         subnetting_question = f"What valid host range is the IP address {ip_address[0]}.{ip_address[1]}.{ip_address[2]}.{ip_address[3]}{cidr_block} a part of?"
@@ -288,7 +314,9 @@ broadcast_address = get_broadcast_address()
 first_valid_host = get_first_host()
 last_valid_host = get_last_host()
 placement = get_placement()
+num_of_subnets = get_number_of_subnets()
 question = generate_question()
+
 # print(ip_address, cidr_block, subnet_mask, network_address)
 # print(f"IP Address: {ip_address}")
 # print(f"CIDR Block: {cidr_block}")
@@ -301,6 +329,7 @@ question = generate_question()
 # print(f"Last Host: {last_valid_host}")
 # print(f"Placement {placement}")
 print(question)
+print(num_of_subnets)
 
 
 # Questions that only require a host IP and subnet or CIDR block
