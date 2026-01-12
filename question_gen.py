@@ -1,12 +1,11 @@
 # pylint: disable = line-too-long
 # pylint: disable = missing-function-docstring
 # pylint: disable = invalid-name
-""" Program that will be used to practice subnetting"""
 import random
 
 
 def new_host_address():
-    """Funtion generates a random host IP address"""
+
     num_roll = random.randint(1, 3)
 
     if num_roll == 1:
@@ -29,13 +28,16 @@ def new_host_address():
 def get_variable_subnet_mask(ip, masks):
 
     if ip[0] == 10:
+
         add_zeroes = 2
         init_subnet = [255]
+
         for _ in range(3):
             octet = random.choice(masks)
             if octet != 255:
                 init_subnet.append(octet)
                 break
+
             init_subnet.append(octet)
             add_zeroes -= 1
 
@@ -44,13 +46,16 @@ def get_variable_subnet_mask(ip, masks):
                 init_subnet.append(0)
 
     elif ip[0] == 172:
+
         add_zeroes = 1
         init_subnet = [255, 255]
+
         for _ in range(2):
             octet = random.choice(masks)
             if octet != 255:
                 init_subnet.append(octet)
                 break
+
             init_subnet.append(octet)
             add_zeroes -= 1
 
@@ -69,6 +74,7 @@ def get_variable_subnet_mask(ip, masks):
 
 
 def get_cidr_block(subnet_mask, masks):
+
     cidr_notation = ""
 
     if subnet_mask[1] != 255:
@@ -93,6 +99,7 @@ def get_cidr_block(subnet_mask, masks):
 
 
 def get_interesting_octet(subnet_mask):
+
     for octet in subnet_mask:
         if octet != 255:
             int_octet_index = subnet_mask.index(octet)
@@ -102,10 +109,12 @@ def get_interesting_octet(subnet_mask):
 
 
 def get_address_block(subnet_mask):
+
     for octet in subnet_mask:
         if octet != 255:
             int_octet = octet
             break
+
     block = 256 - int_octet
 
     return block
@@ -124,68 +133,68 @@ def get_network_address(subnet_mask, ip, address_size, int_octet):
     boundary_start = 0
     boundary_end = address_size - 1
 
-    if ip[int_octet] > boundary_start and ip[int_octet] > boundary_end:
-        while ip[int_octet] > boundary_start and ip[int_octet] > boundary_end:
-            boundary_start += address_size
-            boundary_end += address_size
-        net_address.append(boundary_start)
+    while ip[int_octet] > boundary_start and ip[int_octet] > boundary_end:
+        boundary_start += address_size
+        boundary_end += address_size
 
-    if len(net_address) < 4:
-        while len(net_address) < 4:
-            net_address.append(0)
+    net_address.append(boundary_start)
+
+    while len(net_address) < 4:
+        net_address.append(0)
 
     return net_address
 
 
-def get_broadcast_address(subnet_mask, ip, address_size, int_octet):
+def get_broadcast_address(subnet_mask, address_size, net_address):
+
     bcast_address = []
     index = 0
+
     for octet in subnet_mask:
         if octet == 255:
-            bcast_address.append(ip[index])
+            bcast_address.append(net_address[index])
             index += 1
+        elif octet != 255 and octet > 0:
+            bcast_address.append(net_address[index])
 
-    boundary_start = 0
-    boundary_end = address_size - 1
+    bcast_address[index] += address_size - 1
 
-    if ip[int_octet] > boundary_start and ip[int_octet] > boundary_end:
-        while ip[int_octet] > boundary_start and ip[int_octet] > boundary_end:
-            boundary_start += address_size
-            boundary_end += address_size
-        bcast_address.append(boundary_end)
-
-    if len(bcast_address) < 4:
-        while len(bcast_address) < 4:
-            bcast_address.append(255)
+    while len(bcast_address) < 4:
+        bcast_address.append(255)
 
     return bcast_address
 
 
 def get_first_host(net_address):
+
     first_host = []
     index = 0
 
     for _ in net_address:
         first_host.append(net_address[index])
         index += 1
+
     first_host[3] = first_host[3] + 1
 
     return first_host
 
 
 def get_last_host(bcast_address):
+
     last_host = []
     index = 0
 
     for _ in bcast_address:
         last_host.append(bcast_address[index])
         index += 1
+
     last_host[3] = last_host[3] - 1
 
     return last_host
 
 
 def get_placement():
+
     num_roll = random.randint(1, 6)
     place = ""
 
@@ -206,6 +215,7 @@ def get_placement():
 
 
 def get_number_of_subnets(ip, subnet_mask, masks):
+
     borrowed_bits = 0
     possible_subnets = 0
 
@@ -216,6 +226,7 @@ def get_number_of_subnets(ip, subnet_mask, masks):
             else:
                 borrowed_bits += masks.index(_)
                 break
+
         possible_subnets = 2 ** (borrowed_bits + 1)
 
     elif ip[0] == 172:
@@ -225,6 +236,7 @@ def get_number_of_subnets(ip, subnet_mask, masks):
             else:
                 borrowed_bits += masks.index(_)
                 break
+
         possible_subnets = 2 ** (borrowed_bits + 1)
 
     else:
@@ -235,6 +247,7 @@ def get_number_of_subnets(ip, subnet_mask, masks):
 
 
 def get_number_of_hosts(ip, subnet_mask, masks):
+
     host_bits = 0
     possible_hosts = 0
     mask_octet = 0
@@ -247,6 +260,7 @@ def get_number_of_hosts(ip, subnet_mask, masks):
                 mask_octet = masks.index(_) + 1
                 host_bits += 8 - mask_octet
                 break
+
         possible_hosts = (2 ** host_bits) - 2
 
     elif ip[0] == 172:
@@ -269,8 +283,7 @@ def get_number_of_hosts(ip, subnet_mask, masks):
 
 
 def display_banner():
-    display = print(r""" 
-    
+    display = r""" 
                _____                                                      
               / ___/__  ______  ___  _____                                
               \__ \/ / / / __ \/ _ \/ ___/                                
@@ -282,7 +295,7 @@ def display_banner():
        ___/ / /_/ / /_/ / / / /  __/ /_/ /_/  __/ /         / /           
       /____/\__,_/_.___/_/ /_/\___/\__/\__/\___/_/         /_/_____       
                                                             /_____/       
-     """)
+     """
     return display
 
 
@@ -296,67 +309,91 @@ def menus():
     return
 
 
-def generate_question(ip, cidr, subnet_mask, net_address, place):
-    num_roll = random.randint(1, 28)
-    subnetting_question = ""
+def generate_qna(ip, cidr, subnet_mask, net_address, bcast_address, place, first_host, last_host, host_amount, subnet_amount):
+    num_roll = random.randint(1, 26)
+    # num_roll = 15
+    question = ""
+    answer = ""
 
     if num_roll == 1:
-        subnetting_question = f"What valid host range is the IP address {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} a part of?"
+        question = f"What valid host range is the IP address {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} a part of?"
+        answer = f"{first_host[0]}.{first_host[1]}.{first_host[2]}.{first_host[3]} - {last_host[0]}.{last_host[1]}.{last_host[2]}.{last_host[3]}"
     elif num_roll == 2:
-        subnetting_question = f"What valid host range is the IP address {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} a part of?"
+        question = f"What valid host range is the IP address {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} a part of?"
+        answer = f"{first_host[0]}.{first_host[1]}.{first_host[2]}.{first_host[3]} - {last_host[0]}.{last_host[1]}.{last_host[2]}.{last_host[3]}"
     elif num_roll == 3:
-        subnetting_question = f"Which subnet does host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} belong to?"
+        question = f"Which subnet does host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} belong to?"
+        answer = f"{net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}"
     elif num_roll == 4:
-        subnetting_question = f"Which subnet does host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belong to?"
+        question = f"Which subnet does host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belong to?"
+        answer = f"{net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}"
     elif num_roll == 5:
-        subnetting_question = f"What subnet does host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} belong to?"
+        question = f"Your server needs to be assigned the last usable host address on the {place} subnet of network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}. What address would you assign to the server?"
+        answer = f"{ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}"
     elif num_roll == 6:
-        subnetting_question = f"What subnet does host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belong to?"
+        question = f"Your server needs to be assigned the last usable host address on the {place} subnet of network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. What address would you assign to the server?"
+        answer = f"{ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}"
     elif num_roll == 7:
-        subnetting_question = f"Your server needs to be assigned the last usable host address on the {place} subnet of network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}. What address would you assign to the server?"
+        question = f"What is the first valid host address on the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belongs to?"
+        answer = f"{first_host[0]}.{first_host[1]}.{first_host[2]}.{first_host[3]}"
     elif num_roll == 8:
-        subnetting_question = f"Your server needs to be assigned the last usable host address on the {place} subnet of network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. What address would you assign to the server?"
+        question = f"What is the first valid host address on the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} belongs to?"
+        answer = f"{first_host[0]}.{first_host[1]}.{first_host[2]}.{first_host[3]}"
     elif num_roll == 9:
-        subnetting_question = f"What is the first valid host address on the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belongs to?"
+        question = f"What is the broadcast address of the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} is a part of?"
+        answer = f"{bcast_address[0]}.{bcast_address[1]}.{bcast_address[2]}.{bcast_address[3]}"
     elif num_roll == 10:
-        subnetting_question = f"What is the first valid host address on the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} belongs to?"
+        question = f"What is the broadcast address of the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} is a part of?"
+        answer = f"{bcast_address[0]}.{bcast_address[1]}.{bcast_address[2]}.{bcast_address[3]}"
     elif num_roll == 11:
-        subnetting_question = f"What is the broadcast address of the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} is a part of?"
+        question = f"What is the last valid host address on the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} belongs to?"
+        answer = f"{last_host[0]}.{last_host[1]}.{last_host[2]}.{last_host[3]}"
     elif num_roll == 12:
-        subnetting_question = f"What is the broadcast address of the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} is a part of?"
+        question = f"What is the last valid host address on the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belongs to?"
+        answer = f"{last_host[0]}.{last_host[1]}.{last_host[2]}.{last_host[3]}"
     elif num_roll == 13:
-        subnetting_question = f"What is the last valid host address on the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]}{cidr} belongs to?"
+        question = f"What is the broadcast address of network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}?"
+        answer = f"{bcast_address[0]}.{bcast_address[1]}.{bcast_address[2]}.{bcast_address[3]}"
     elif num_roll == 14:
-        subnetting_question = f"What is the last valid host address on the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belongs to?"
+        question = f"What is the broadcast address of network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+        answer = f"{bcast_address[0]}.{bcast_address[1]}.{bcast_address[2]}.{bcast_address[3]}"
     elif num_roll == 15:
-        subnetting_question = f"What is the broadcast address of network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}?"
+        question = f"You need to assign a server the last valid host address on the subnet {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}. What IP address would you assign?"
+        answer = f"{last_host[0]}.{last_host[1]}.{last_host[2]}.{last_host[3]}"
     elif num_roll == 16:
-        subnetting_question = f"What is the broadcast address of network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+        question = f"You need to assign a server the last valid host address on the subnet {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. What IP address would you assign?"
+        answer = f"{last_host[0]}.{last_host[1]}.{last_host[2]}.{last_host[3]}"
     elif num_roll == 17:
-        subnetting_question = f"You need to assign a server the last valid host address on the subnet {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}. What IP address would you assign?"
+        question = f"How many subnets and hosts per subnet can you get from the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}?"
+        answer = f"{host_amount} hosts and {subnet_amount} subnets"
     elif num_roll == 18:
-        subnetting_question = f"You need to assign a server the last valid host address on the subnet {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. What IP address would you assign?"
+        question = f"How many subnets and hosts per subnet can you get from the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+        answer = f"{host_amount} hosts and {subnet_amount} subnets"
     elif num_roll == 19:
-        subnetting_question = f"How many subnets and hosts per subnet can you get from the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}?"
+        question = f"What is the last valid host on subnet {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}?"
+        answer = f"{last_host[0]}.{last_host[1]}.{last_host[2]}.{last_host[3]}"
     elif num_roll == 20:
-        subnetting_question = f"How many subnets and hosts per subnet can you get from the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+        question = f"What is the last valid host on subnet {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+        answer = f"{last_host[0]}.{last_host[1]}.{last_host[2]}.{last_host[3]}"
     elif num_roll == 21:
-        subnetting_question = f"What is the last valid host on subnet {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}?"
+        question = f"You have the following subnetted network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}. You need to assign your router the first usable host address on the {place}. subnet. What address would you use?"
+        answer = f"{first_host[0]}.{first_host[1]}.{first_host[2]}.{first_host[3]}"
     elif num_roll == 22:
-        subnetting_question = f"What is the last valid host on subnet {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+        question = f"You have the following subnetted network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. You need to assign your router the first usable host address on the {place}. subnet. What address would you use?"
+        answer = f"{first_host[0]}.{first_host[1]}.{first_host[2]}.{first_host[3]}"
     elif num_roll == 23:
-        subnetting_question = f"You have the following subnetted network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}. You need to assign your router the first usable host address on the {place}. subnet. What address would you use?"
+        question = f"How many subnets are available with the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}"
+        answer = f"{subnet_amount} subnets"
     elif num_roll == 24:
-        subnetting_question = f"You have the following subnetted network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. You need to assign your router the first usable host address on the {place}. subnet. What address would you use?"
+        question = f"How many subnets are available with the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+        answer = f"{subnet_amount} subnets"
     elif num_roll == 25:
-        subnetting_question = f"How many subnets are available with the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}"
+        question = f"How many hosts are available with the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}?"
+        answer = f"{host_amount} hosts"
     elif num_roll == 26:
-        subnetting_question = f"How many subnets are available with the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
-    elif num_roll == 27:
-        subnetting_question = f"How many hosts are available with the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]}{cidr}?"
-    elif num_roll == 28:
-        subnetting_question = f"How many hosts are available with the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
-    return subnetting_question
+        question = f"How many hosts are available with the network {net_address[0]}.{net_address[1]}.{net_address[2]}.{net_address[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+        answer = f"{host_amount} hosts"
+    return {"question": question, "answer": answer}
 
 
 possible_variable_masks = [128, 192, 224, 240, 248, 252, 254, 255]
@@ -370,7 +407,7 @@ interesting_octet = get_interesting_octet(variable_length_subnet_mask)
 network_address = get_network_address(
     variable_length_subnet_mask, ip_address, address_block, interesting_octet)
 broadcast_address = get_broadcast_address(
-    variable_length_subnet_mask, ip_address, address_block, interesting_octet)
+    variable_length_subnet_mask, address_block, network_address)
 first_valid_host = get_first_host(network_address)
 last_valid_host = get_last_host(broadcast_address)
 placement = get_placement()
@@ -378,11 +415,11 @@ num_of_subnets = get_number_of_subnets(
     ip_address, variable_length_subnet_mask, possible_variable_masks)
 num_of_hosts = get_number_of_hosts(
     ip_address, variable_length_subnet_mask, possible_variable_masks)
-question = generate_question(
-    ip_address, cidr_block, variable_length_subnet_mask, network_address, placement)
+q_n_a = generate_qna(
+    ip_address, cidr_block, variable_length_subnet_mask, network_address, broadcast_address, placement, first_valid_host, last_valid_host, num_of_hosts, num_of_subnets)
 banner = display_banner()
 
-# ***BE SURE TO DEFINE THE LISTS THAT ARE USED MULTIPLE TIMES ONCE AND PROVIDE THEM AS AN ARGUMENT FOR EACH FUNCTION***
+# IMPORTANT NOTE FOR LATER: ADJUST THE FUNCTION THAT GENERATES THE VARIABLE PLACEMENT, BE SURE THE RETURNED VALUE IS APPROPRIATE FOR THE SUBNET'S ADDRESS BLOCK SIZE
 
 # print(ip_address, cidr_block, subnet_mask, network_address)
 # print(f"IP Address: {ip_address}")
@@ -395,10 +432,11 @@ banner = display_banner()
 # print(f"First Host: {first_valid_host}")
 # print(f"Last Host: {last_valid_host}")
 # print(f"Placement {placement}")
-print(question)
-print(f"Number of subnets: {num_of_subnets}")
-print(f"Number of hosts: {num_of_hosts}")
-print(banner)
+# print(q_n_a.get("question"))
+# print(q_n_a.get("answer"))
+# print(f"Number of subnets: {num_of_subnets}")
+# print(f"Number of hosts: {num_of_hosts}")
+# print(banner)
 
 
 # Questions that only require a host IP and subnet or CIDR block
