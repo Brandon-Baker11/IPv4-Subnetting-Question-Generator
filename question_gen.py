@@ -216,10 +216,12 @@ def get_placement(subnet_mask):
     end_range = 0
 
     for octet in subnet_mask:
+        if octet == 255:
+            continue
         if octet == 128:
             end_range = 2
             break
-        elif octet == 192:
+        if octet == 192:
             end_range = 4
             break
         else:
@@ -277,56 +279,104 @@ def get_valid_parent_hosts(parent_id, subnet_mask, address_size, subnet_placemen
                 index += 1
             else:
                 break
-        _first[index] += 1
-        _last[index] += 2 * address_size - 1
+        if index < 4:
+            _first[index] += address_size
+            _first[3] += 1
+            _last[index] += 2 * address_size - 1
+            _last[3] = 254
+        else:
+            _first[index] += address_size
+            _last[index] += 2 * address_size - 1
+
     elif subnet_placement == "third":
         for octet in subnet_mask:
             if octet == 255:
                 index += 1
             else:
                 break
-        _first[index] += 2 * address_size + 1
-        _last[index] += 3 * address_size - 1
+        if index < 4:
+            _first[index] += 2 * address_size
+            _first[3] += 1
+            _last[index] += 3 * address_size - 1
+            _last[3] = 254
+        else:
+            _first[index] += 2 * address_size
+            _last[index] += 3 * address_size - 1
+
     elif subnet_placement == "fourth":
         for octet in subnet_mask:
             if octet == 255:
                 index += 1
             else:
                 break
-        _first[index] += 3 * address_size + 1
-        _last[index] += 4 * address_size - 1
+        if index < 4:
+            _first[index] += 3 * address_size
+            _first[3] += 1
+            _last[index] += 4 * address_size - 1
+            _last[3] = 254
+        else:
+            _first[index] += 3 * address_size
+            _last[index] += 4 * address_size - 1
+
     elif subnet_placement == "fifth":
         for octet in subnet_mask:
             if octet == 255:
                 index += 1
             else:
                 break
-        _first[index] += 4 * address_size + 1
-        _last[index] += 5 * address_size - 1
+        if index < 4:
+            _first[index] += 4 * address_size
+            _first[3] += 1
+            _last[index] += 5 * address_size - 1
+            _last[3] = 254
+        else:
+            _first[index] += 4 * address_size
+            _last[index] += 5 * address_size - 1
+
     elif subnet_placement == "sixth":
         for octet in subnet_mask:
             if octet == 255:
                 index += 1
             else:
                 break
-        _first[index] += 5 * address_size + 1
-        _last[index] += 6 * address_size - 1
+        if index < 4:
+            _first[index] += 5 * address_size
+            _first[3] += 1
+            _last[index] += 6 * address_size - 1
+            _last[3] = 254
+        else:
+            _first[index] += 5 * address_size
+            _last[index] += 6 * address_size - 1
+
     elif subnet_placement == "seventh":
         for octet in subnet_mask:
             if octet == 255:
                 index += 1
             else:
                 break
-        _first[index] += 6 * address_size + 1
-        _last[index] += 7 * address_size - 1
+        if index < 4:
+            _first[index] += 6 * address_size
+            _first[3] += 1
+            _last[index] += 7 * address_size - 1
+            _last[3] = 254
+        else:
+            _first[index] += 6 * address_size
+            _last[index] += 7 * address_size - 1
+
     elif subnet_placement == "eighth":
         for octet in subnet_mask:
             if octet == 255:
                 index += 1
             else:
                 break
-        _first[index] += 7 * address_size + 1
-        _last[index] += 8 * address_size - 1
+        if index < 4:
+            _first[index] += 7 * address_size
+            _first[3] += 1
+            _last[index] += 8 * address_size - 1
+            _last[3] = 254
+        else:
+            _first[index] += 7 * address_size
+            _last[index] += 8 * address_size - 1
 
     return _first, _last
 
@@ -421,7 +471,7 @@ def start_super_subnetter():
     return
 
 
-def menus():
+def format_to_string():
 
     return
 
@@ -531,10 +581,10 @@ parent_network_id = get_parent_network_id(
 first_valid_host = get_first_subnet_host(subnetted_network_id)
 last_valid_host = get_last_subnet_host(broadcast_address)
 placement = get_placement(variable_length_subnet_mask)
-first_parent_host = get_valid_parent_hosts(
+first_last_parent_host = get_valid_parent_hosts(
     parent_network_id, variable_length_subnet_mask, address_block, placement)
-last_parent_host = get_valid_parent_hosts(
-    parent_network_id, variable_length_subnet_mask, address_block, placement)
+# last_parent_host = get_valid_parent_hosts(
+#    parent_network_id, variable_length_subnet_mask, address_block, placement)
 num_of_subnets = get_number_of_subnets(
     ip_address, variable_length_subnet_mask, possible_variable_masks)
 num_of_hosts = get_number_of_hosts(
@@ -543,6 +593,11 @@ q_n_a = generate_qna(
     ip_address, cidr_block, variable_length_subnet_mask, subnetted_network_id, broadcast_address, placement, first_valid_host, last_valid_host, num_of_hosts, num_of_subnets, parent_network_id)
 banner = display_banner()
 
+# FIX THE ANSWER FOR THE LAST USABLE. IT DOESN'T PLACE A 255 AT THE THIRD OCTET
+# SAMPLE:
+# You have the following subnetted network 10.0.0.0/14. You need to assign your router the first usable host address on the eighth subnet. What address would you use?
+# 10.60.0.1
+# ([10, 28, 0, 1], [10, 31, 0, 254])
 
 # print(ip_address, cidr_block, subnet_mask, network_address)
 # print(f"IP Address: {ip_address}")
@@ -561,8 +616,7 @@ print(q_n_a.get("answer"))
 # print(f"Number of hosts: {num_of_hosts}")
 # print(banner)
 # print(parent_network_id)
-print(first_parent_host)
-print(last_parent_host)
+print(first_last_parent_host)
 
 
 # Questions that only require a host IP and subnet or CIDR block
