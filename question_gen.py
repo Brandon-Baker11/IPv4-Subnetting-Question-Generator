@@ -181,6 +181,7 @@ def get_broadcast_address(subnet_mask, address_size, net_address):
 
     return bcast_address
 
+
 def get_first_last_subnet_hosts(net_address, bcast_address):
 
     first_host = []
@@ -503,20 +504,9 @@ def display_banner():
     return display
 
 
-def start_super_subnetter():
-
-    return
-
-
-def format_to_string():
-
-    return
-
-
 def generate_qna(ip, cidr, subnet_mask, subnet_id, bcast_address, place, first_last_subnet, host_amount, subnet_amount, parent_id, first_last_parent):
-    # aaa = [1, 2, 7, 8, 11, 12, 15, 16, 19, 20]
+    
     num_roll = random.randint(1, 26)
-    # num_roll = random.choice(aaa)
     question = ""
     answer = ""
 
@@ -615,7 +605,8 @@ broadcast_address = get_broadcast_address(
     variable_length_subnet_mask, address_block, subnetted_network_id)
 parent_network_id = get_parent_network_id(
     variable_length_subnet_mask, ip_address)
-first_last_valid_subnet_hosts = get_first_last_subnet_hosts(subnetted_network_id, broadcast_address)
+first_last_valid_subnet_hosts = get_first_last_subnet_hosts(
+    subnetted_network_id, broadcast_address)
 placement = get_placement(variable_length_subnet_mask)
 first_last_parent_hosts = get_valid_parent_hosts(
     parent_network_id, variable_length_subnet_mask, address_block, placement)
@@ -627,25 +618,23 @@ q_n_a = generate_qna(
     ip_address, cidr_block, variable_length_subnet_mask, subnetted_network_id, broadcast_address, placement, first_last_valid_subnet_hosts, num_of_hosts, num_of_subnets, parent_network_id, first_last_parent_hosts)
 banner = display_banner()
 
+practice = False
+print(banner)
+print(" ")
+input("Press the [Enter] Key to Start Practice!\n")
+practice = True
 
-# print(ip_address, cidr_block, subnet_mask, network_address)
-# print(f"IP Address: {ip_address}")
-# print(f"CIDR Block: {cidr_block}")
-# print(f"Subnet Mask: {subnet_mask}")
-# print(f"Network Address: {network_address}")
-# print(f"Broadcast Address: {broadcast_address}")
-# print(f"Interesting Octet: {interesting_octet}")
-# print(f"Address Block: {address_block}")
-# print(f"First Host: {first_valid_host}")
-# print(f"Last Host: {last_valid_host}")
-# print(f"Placement {placement}")
-print(q_n_a.get("question"))
-print(q_n_a.get("answer"))
-# print(f"Number of subnets: {num_of_subnets}")
-# print(f"Number of hosts: {num_of_hosts}")
-# print(banner)
-# print(parent_network_id)
-# print(first_last_parent_host[0])
+while practice:
+    print(q_n_a.get("question"))
+    print("Press the [Enter] Key to Reveal the Answer.\n")
+    print(q_n_a.get("answer", "\n"))
+    print("Ready for the Next Question?\n")
+    next_question = input("[Y]es [E]xit\n")
+
+    if next_question == "Y" or next_question == "y" or next_question == "Yes":
+        continue
+    elif next_question == "E" or next_question == "e" or next_question == "Exit":
+        practice = False
 
 
 # Questions that only require a host IP and subnet or CIDR block
