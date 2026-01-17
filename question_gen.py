@@ -4,6 +4,7 @@
 # pylint: disable = trailing-whitespace
 # pylint: disable = missing-module-docstring
 import random
+import os
 
 
 def new_host_address():
@@ -504,6 +505,16 @@ def display_banner():
     return display
 
 
+def clear_screen():
+    """Clears the console screen based on the operating system."""
+    # Check if the OS is Windows (nt stands for New Technology)
+    if os.name == 'nt':
+        _ = os.system('cls')
+    # Otherwise, assume it's a POSIX system (Linux, macOS, Unix, etc.)
+    else:
+        _ = os.system('clear')
+
+
 def generate_qna(ip, cidr, subnet_mask, subnet_id, bcast_address, place, first_last_subnet, host_amount, subnet_amount, parent_id, first_last_parent):
     
     num_roll = random.randint(1, 26)
@@ -619,15 +630,22 @@ q_n_a = generate_qna(
 banner = display_banner()
 
 practice = False
+clear_screen()
 print(banner)
 print(" ")
 input("Press the [Enter] Key to Start Practice!\n")
 practice = True
-
+question = ""
 while practice:
+    generate_qna(
+    ip_address, cidr_block, variable_length_subnet_mask, subnetted_network_id, broadcast_address, placement, first_last_valid_subnet_hosts, num_of_hosts, num_of_subnets, parent_network_id, first_last_parent_hosts)
+    clear_screen()
+    print(banner)
     print(q_n_a.get("question"))
-    print("Press the [Enter] Key to Reveal the Answer.\n")
-    print(q_n_a.get("answer", "\n"))
+    print(" ")
+    show_answer = input("Press the [Enter] Key to Reveal the Answer.\n")
+
+    print("Answer:", q_n_a.get("answer", "\n"))
     print("Ready for the Next Question?\n")
     next_question = input("[Y]es [E]xit\n")
 
@@ -636,7 +654,7 @@ while practice:
     elif next_question == "E" or next_question == "e" or next_question == "Exit":
         practice = False
 
-
+# Nest a while loop that will ask a question
 # Questions that only require a host IP and subnet or CIDR block
 
 # "Network [network_add] needs to be divided into [x amount] subnets, while keeping as many usable hosts in each subnet as possible. What mask should be used"
