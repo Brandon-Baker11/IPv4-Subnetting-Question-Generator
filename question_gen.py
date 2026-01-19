@@ -8,7 +8,7 @@ import os
 
 
 def new_host_address():
-
+    "Generates a random IP address host."
     num_roll = random.randint(1, 3)
 
     if num_roll == 1:
@@ -29,7 +29,7 @@ def new_host_address():
 
 
 def get_variable_subnet_mask(ip, masks):
-
+    "Generates the subnet mask for the IP address that is generated."
     if ip[0] == 10:
 
         add_zeroes = 2
@@ -77,7 +77,7 @@ def get_variable_subnet_mask(ip, masks):
 
 
 def get_cidr_block(subnet_mask, masks):
-
+    "Selects the appropriate CIDR notation depending on the subnet mask."
     cidr_notation = ""
 
     if subnet_mask[1] != 255:
@@ -102,7 +102,7 @@ def get_cidr_block(subnet_mask, masks):
 
 
 def get_interesting_octet(subnet_mask):
-
+    "Returns the interesting octet used to calculate the subnet ID/broadcast address."
     for octet in subnet_mask:
         if octet != 255:
             int_octet_index = subnet_mask.index(octet)
@@ -112,7 +112,7 @@ def get_interesting_octet(subnet_mask):
 
 
 def get_address_block(subnet_mask):
-
+    "Calculates the address block for the IP configuration that is generated."
     for octet in subnet_mask:
         if octet != 255:
             int_octet = octet
@@ -124,7 +124,7 @@ def get_address_block(subnet_mask):
 
 
 def get_subnet_id(subnet_mask, ip, address_size, int_octet):
-
+    "Calculates the subnet ID address for the IP configuration that is generated."
     _id = []
     index = 0
 
@@ -149,6 +149,7 @@ def get_subnet_id(subnet_mask, ip, address_size, int_octet):
 
 
 def get_parent_network_id(subnet_mask, ip):
+    "Calculates the parent network address for the IP configuration that is generated."
     parent_id = []
     index = 0
 
@@ -164,7 +165,7 @@ def get_parent_network_id(subnet_mask, ip):
 
 
 def get_broadcast_address(subnet_mask, address_size, net_address):
-
+    "Calculates the broadcast address for the IP configuration that is generated."
     bcast_address = []
     index = 0
 
@@ -184,7 +185,7 @@ def get_broadcast_address(subnet_mask, address_size, net_address):
 
 
 def get_first_last_subnet_hosts(net_address, bcast_address):
-
+    "Returns the valid host range for the subnet ID that is generated."
     first_host = []
     last_host = []
     index = 0
@@ -201,7 +202,7 @@ def get_first_last_subnet_hosts(net_address, bcast_address):
 
 
 def get_placement(subnet_mask):
-
+    "Generates a placement variable based on the available subnets an address can have."
     place = ""
     end_range = 0
 
@@ -250,7 +251,7 @@ def get_placement(subnet_mask):
 
 
 def get_valid_parent_hosts(parent_id, subnet_mask, address_size, subnet_placement):
-
+    "Returns the valid address range of the parent address that is generated."
     _first = []
     _last = []
 
@@ -421,7 +422,7 @@ def get_valid_parent_hosts(parent_id, subnet_mask, address_size, subnet_placemen
 
 
 def get_number_of_subnets(ip, subnet_mask, masks):
-
+    "Returns the number of hosts that are within the IP address and subnet mask configuration."
     borrowed_bits = 0
     possible_subnets = 0
 
@@ -453,7 +454,7 @@ def get_number_of_subnets(ip, subnet_mask, masks):
 
 
 def get_number_of_hosts(ip, subnet_mask, masks):
-
+    "Returns the number of hosts that are within the IP address and subnet mask configuration."
     host_bits = 0
     possible_hosts = 0
     mask_octet = 0
@@ -489,6 +490,7 @@ def get_number_of_hosts(ip, subnet_mask, masks):
 
 
 def display_banner():
+    "Displays the banner for the program."
     display = r""" 
                _____                                                      
               / ___/__  ______  ___  _____                                
@@ -506,7 +508,7 @@ def display_banner():
 
 
 def clear_screen():
-    """Clears the console screen based on the operating system."""
+    """Clears the console screen based on the operating system"""
     # Check if the OS is Windows (nt stands for New Technology)
     if os.name == 'nt':
         _ = os.system('cls')
@@ -515,8 +517,60 @@ def clear_screen():
         _ = os.system('clear')
 
 
+def check_user_choice(menu):
+    "Checks the validity of the input provided by the user."
+    continue_practice = True
+    is_valid_input = False
+    menu_option = ""
+    action = ""
+
+    if menu == "answer":
+        menu_option = "R"
+        action = "to Reveal the Answer"
+    elif menu == "next":
+        menu_option = "N"
+        action = "for the Next Question"
+    elif menu == "start":
+        menu_option = "Enter"
+        action = "to Start Your Subnetting Practice"
+
+    while not is_valid_input:
+        MAX_LENGTH = 1
+        try:
+            choice = input(
+                f"Press the [{menu_option}] Key {action}, or press [E] to Exit the Program.\n")
+            choice = choice.upper()
+            if menu == "start" and choice == "":
+                is_valid_input = True
+            elif choice == menu_option:
+                is_valid_input = True
+            elif choice == "E":
+                continue_practice = False
+                is_valid_input = True
+                break
+            elif choice.isalpha() is False:
+                raise ValueError(
+                    f"Invalid Input: Press the [{menu_option}] Key {action} or [E] to Exit the Program.")
+            elif len(choice) > MAX_LENGTH:
+                raise ValueError(
+                    f"Error: Input is too long. Please keep it under {MAX_LENGTH} character.")
+            else:
+                raise ValueError(
+                    f"Invalid Input: Press the [{menu_option}] Key {action} or [E] to Exit the Program.")
+        except ValueError as err:
+            clear_screen()
+            print(banner)
+            if menu != "start":
+                print(q_n_a.get("question"))
+            print(" ")
+            print(err)
+            print(" ")
+    return continue_practice
+
+
 def generate_qna(ip, cidr, subnet_mask, subnet_id, bcast_address, place, first_last_subnet, host_amount, subnet_amount, parent_id, first_last_parent):
-    
+    "Returns a random question using random.randint and applies the IP addressing details that were generated."
+
     num_roll = random.randint(1, 26)
     question = ""
     answer = ""
@@ -570,10 +624,10 @@ def generate_qna(ip, cidr, subnet_mask, subnet_id, bcast_address, place, first_l
         question = f"You need to assign a server the last valid host address on the subnet {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. What IP address would you assign?"
         answer = f"{first_last_subnet[1][0]}.{first_last_subnet[1][1]}.{first_last_subnet[1][2]}.{first_last_subnet[1][3]}"
     elif num_roll == 17:
-        question = f"How many subnets and hosts per subnet can you get from the network {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]}{cidr}?"
+        question = f"How many subnets and valid hosts per subnet can you get from the network {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]}{cidr}?"
         answer = f"{host_amount} hosts and {subnet_amount} subnets"
     elif num_roll == 18:
-        question = f"How many subnets and hosts per subnet can you get from the network {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+        question = f"How many subnets and valid hosts per subnet can you get from the network {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
         answer = f"{host_amount} hosts and {subnet_amount} subnets"
     elif num_roll == 19:
         question = f"What is the last valid host on subnet {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]}{cidr}?"
@@ -594,67 +648,65 @@ def generate_qna(ip, cidr, subnet_mask, subnet_id, bcast_address, place, first_l
         question = f"How many subnets are available with the network {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
         answer = f"{subnet_amount} subnets"
     elif num_roll == 25:
-        question = f"How many hosts are available with the network {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]}{cidr}?"
+        question = f"How many valid hosts are available with the network {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]}{cidr}?"
         answer = f"{host_amount} hosts"
     elif num_roll == 26:
-        question = f"How many hosts are available with the network {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
+        question = f"How many valid hosts are available with the network {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
         answer = f"{host_amount} hosts"
     return {"question": question, "answer": answer}
 
 
-possible_variable_masks = [128, 192, 224, 240, 248, 252, 254, 255]
-ip_address = new_host_address()
-variable_length_subnet_mask = get_variable_subnet_mask(
-    ip_address, possible_variable_masks)
-cidr_block = get_cidr_block(
-    variable_length_subnet_mask, possible_variable_masks)
-address_block = get_address_block(variable_length_subnet_mask)
-interesting_octet = get_interesting_octet(variable_length_subnet_mask)
-subnetted_network_id = get_subnet_id(
-    variable_length_subnet_mask, ip_address, address_block, interesting_octet)
-broadcast_address = get_broadcast_address(
-    variable_length_subnet_mask, address_block, subnetted_network_id)
-parent_network_id = get_parent_network_id(
-    variable_length_subnet_mask, ip_address)
-first_last_valid_subnet_hosts = get_first_last_subnet_hosts(
-    subnetted_network_id, broadcast_address)
-placement = get_placement(variable_length_subnet_mask)
-first_last_parent_hosts = get_valid_parent_hosts(
-    parent_network_id, variable_length_subnet_mask, address_block, placement)
-num_of_subnets = get_number_of_subnets(
-    ip_address, variable_length_subnet_mask, possible_variable_masks)
-num_of_hosts = get_number_of_hosts(
-    ip_address, variable_length_subnet_mask, possible_variable_masks)
-q_n_a = generate_qna(
-    ip_address, cidr_block, variable_length_subnet_mask, subnetted_network_id, broadcast_address, placement, first_last_valid_subnet_hosts, num_of_hosts, num_of_subnets, parent_network_id, first_last_parent_hosts)
 banner = display_banner()
-
-practice = False
 clear_screen()
 print(banner)
 print(" ")
-input("Press the [Enter] Key to Start Practice!\n")
-practice = True
-question = ""
-while practice:
-    generate_qna(
-    ip_address, cidr_block, variable_length_subnet_mask, subnetted_network_id, broadcast_address, placement, first_last_valid_subnet_hosts, num_of_hosts, num_of_subnets, parent_network_id, first_last_parent_hosts)
+user_input = check_user_choice("start")
+
+while user_input is True:
+    possible_variable_masks = [128, 192, 224, 240, 248, 252, 254, 255]
+    ip_address = new_host_address()
+    variable_length_subnet_mask = get_variable_subnet_mask(
+        ip_address, possible_variable_masks)
+    cidr_block = get_cidr_block(
+        variable_length_subnet_mask, possible_variable_masks)
+    address_block = get_address_block(variable_length_subnet_mask)
+    interesting_octet = get_interesting_octet(variable_length_subnet_mask)
+    subnetted_network_id = get_subnet_id(
+        variable_length_subnet_mask, ip_address, address_block, interesting_octet)
+    broadcast_address = get_broadcast_address(
+        variable_length_subnet_mask, address_block, subnetted_network_id)
+    parent_network_id = get_parent_network_id(
+        variable_length_subnet_mask, ip_address)
+    first_last_valid_subnet_hosts = get_first_last_subnet_hosts(
+        subnetted_network_id, broadcast_address)
+    placement = get_placement(variable_length_subnet_mask)
+    first_last_parent_hosts = get_valid_parent_hosts(
+        parent_network_id, variable_length_subnet_mask, address_block, placement)
+    num_of_subnets = get_number_of_subnets(
+        ip_address, variable_length_subnet_mask, possible_variable_masks)
+    num_of_hosts = get_number_of_hosts(
+        ip_address, variable_length_subnet_mask, possible_variable_masks)
+    q_n_a = generate_qna(
+        ip_address, cidr_block, variable_length_subnet_mask, subnetted_network_id, broadcast_address, placement, first_last_valid_subnet_hosts, num_of_hosts, num_of_subnets, parent_network_id, first_last_parent_hosts)
+
     clear_screen()
     print(banner)
     print(q_n_a.get("question"))
     print(" ")
-    show_answer = input("Press the [Enter] Key to Reveal the Answer.\n")
 
+    user_input = check_user_choice("answer")
+
+    if user_input is False:
+        break
+
+    clear_screen()
+    print(banner)
+    print(q_n_a.get("question"))
+    print(" ")
     print("Answer:", q_n_a.get("answer", "\n"))
-    print("Ready for the Next Question?\n")
-    next_question = input("[Y]es [E]xit\n")
+    print(" ")
 
-    if next_question == "Y" or next_question == "y" or next_question == "Yes":
-        continue
-    elif next_question == "E" or next_question == "e" or next_question == "Exit":
-        practice = False
+    user_input = check_user_choice("next")
 
-# Nest a while loop that will ask a question
-# Questions that only require a host IP and subnet or CIDR block
-
-# "Network [network_add] needs to be divided into [x amount] subnets, while keeping as many usable hosts in each subnet as possible. What mask should be used"
+    if user_input is False:
+        break
