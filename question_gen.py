@@ -1,8 +1,3 @@
-# pylint: disable = line-too-long
-# pylint: disable = missing-function-docstring
-# pylint: disable = invalid-name
-# pylint: disable = trailing-whitespace
-# pylint: disable = missing-module-docstring
 import random
 import os
 
@@ -30,47 +25,28 @@ def new_host_address():
 
 def get_variable_subnet_mask(ip, masks):
     "Generates the subnet mask for the IP address that is generated."
+    excluded_mask = 255
+    possible_masks = [item for item in masks if item != excluded_mask]
+    
     if ip[0] == 10:
 
         add_zeroes = 2
         init_subnet = [255]
+        octet = random.choice(possible_masks)
+        init_subnet.append(octet)
 
-        for _ in range(3):
-            octet = random.choice(masks)
-            if octet != 255:
-                init_subnet.append(octet)
-                break
-
-            init_subnet.append(octet)
-            add_zeroes -= 1
-
-        if add_zeroes > 0:
-            for _ in range(add_zeroes):
-                init_subnet.append(0)
+        for _ in range(add_zeroes):
+            init_subnet.append(0)
 
     elif ip[0] == 172:
-
-        add_zeroes = 1
         init_subnet = [255, 255]
-
-        for _ in range(2):
-            octet = random.choice(masks)
-            if octet != 255:
-                init_subnet.append(octet)
-                break
-
-            init_subnet.append(octet)
-            add_zeroes -= 1
-
-        if add_zeroes > 0:
-            init_subnet.append(0)
+        octet = random.choice(possible_masks)
+        init_subnet.append(octet)
+        init_subnet.append(0)
 
     elif ip[0] == 192:
         init_subnet = [255, 255, 255]
-        octet = random.choice(masks)
-        if octet == 255:
-            while octet == 255:
-                octet = random.choice(masks)
+        octet = random.choice(possible_masks)
         init_subnet.append(octet)
 
     return init_subnet
@@ -102,7 +78,7 @@ def get_cidr_block(subnet_mask, masks):
 
 
 def get_interesting_octet(subnet_mask):
-    "Returns the interesting octet used to calculate the subnet ID/broadcast address."
+    "Returns the index value correlated with the interesting octet which is used to calculate the subnet ID/broadcast address."
     for octet in subnet_mask:
         if octet != 255:
             int_octet_index = subnet_mask.index(octet)
@@ -184,7 +160,7 @@ def get_broadcast_address(subnet_mask, address_size, net_address):
     return bcast_address
 
 
-def get_first_last_subnet_hosts(net_address, bcast_address):
+def get_first_last_subnet_hosts(net_address, bcast_address, address_size):
     "Returns the valid host range for the subnet ID that is generated."
     first_host = []
     last_host = []
@@ -195,16 +171,18 @@ def get_first_last_subnet_hosts(net_address, bcast_address):
         last_host.append(bcast_address[index])
         index += 1
 
-    first_host[3] = first_host[3] + 1
-    last_host[3] = last_host[3] - 1
-
+    if address_size >= 2:
+        first_host[3] = first_host[3] + 1
+        last_host[3] = last_host[3] - 1
+        
     return first_host, last_host
-
+    
 
 def get_placement(subnet_mask):
     "Generates a placement variable based on the available subnets an address can have."
     place = ""
     end_range = 0
+    start_point = 0
 
     for octet in subnet_mask:
         if octet == 255:
@@ -219,205 +197,92 @@ def get_placement(subnet_mask):
             end_range = 8
             break
 
-    num_roll = random.randint(1, 6)
+    num_roll = random.randint(1, 8)
 
     if end_range == 2:
         if num_roll == 1:
             place = "first"
+            start_point = 1
         else:
             place = "second"
+            start_point = 2
 
     if end_range == 4:
         if num_roll == 1:
             place = "first"
+            start_point = 1
         elif num_roll == 2:
             place = "second"
+            start_point = 2
         elif num_roll == 3:
             place = "third"
+            start_point = 3
         else:
             place = "fourth"
+            start_point = 4
 
     if end_range == 8:
-        if num_roll == 5:
+        if num_roll == 1:
+            place = "first"
+            start_point = 1
+        elif num_roll == 2:
+            place = "second"
+            start_point = 2
+        elif num_roll == 3:
+            place = "third"
+            start_point = 3
+        elif num_roll == 4:
+            place = "fourth"
+            start_point = 4
+        elif num_roll == 5:
             place = "fifth"
+            start_point = 5
         elif num_roll == 6:
             place = "sixth"
+            start_point = 6
         elif num_roll == 7:
             place = "seventh"
+            start_point = 7
         else:
             place = "eighth"
+            start_point = 8
 
-    return place
+    return place, start_point
 
 
-def get_valid_parent_hosts(parent_id, subnet_mask, address_size, subnet_placement):
+def get_valid_parent_hosts(parent_id, subnet_mask, address_size, subnet_placement_int):
     "Returns the valid address range of the parent address that is generated."
     _first = []
     _last = []
+    index = 0
+    _start = subnet_placement_int - 1
+    _end = subnet_placement_int
 
     for octet in parent_id:
         _first.append(octet)
         _last.append(octet)
 
-    index = 0
-
-    if subnet_placement == "first":
+    for octet in subnet_mask:
+        if octet == 255:
+            index += 1
+        else:
+            break
+    if index == 1:
+        _first[index] += _start * address_size
+        _first[2] = 0
         _first[3] += 1
-        _last[3] += address_size - 1
-    elif subnet_placement == "second":
-        for octet in subnet_mask:
-            if octet == 255:
-                index += 1
-            else:
-                break
-        if index < 2:
-            _first[index] += address_size
-            _first[2] = 0
-            _first[3] += 1
-            _last[index] += 2 * address_size - 1
-            _last[2] = 255
-            _last[3] = 254
-        elif index < 4:
-            _first[index] += address_size
-            _first[3] += 1
-            _last[index] += 2 * address_size - 1
-            _last[3] = 254
-        else:
-            _first[index] += address_size
-            _last[index] += 2 * address_size - 1
-
-    elif subnet_placement == "third":
-        for octet in subnet_mask:
-            if octet == 255:
-                index += 1
-            else:
-                break
-        if index < 2:
-            _first[index] += 2 * address_size
-            _first[2] = 0
-            _first[3] += 1
-            _last[index] += 3 * address_size - 1
-            _last[2] = 255
-            _last[3] = 254
-        elif index < 4:
-            _first[index] += 2 * address_size
-            _first[3] += 1
-            _last[index] += 3 * address_size - 1
-            _last[3] = 254
-        else:
-            _first[index] += 2 * address_size
-            _last[index] += 3 * address_size - 1
-
-    elif subnet_placement == "fourth":
-        for octet in subnet_mask:
-            if octet == 255:
-                index += 1
-            else:
-                break
-        if index < 2:
-            _first[index] += 3 * address_size
-            _first[2] = 0
-            _first[3] += 1
-            _last[index] += 4 * address_size - 1
-            _last[2] = 255
-            _last[3] = 254
-        elif index < 4:
-            _first[index] += 3 * address_size
-            _first[3] += 1
-            _last[index] += 4 * address_size - 1
-            _last[3] = 254
-        else:
-            _first[index] += 3 * address_size
-            _last[index] += 4 * address_size - 1
-
-    elif subnet_placement == "fifth":
-        for octet in subnet_mask:
-            if octet == 255:
-                index += 1
-            else:
-                break
-        if index < 2:
-            _first[index] += 4 * address_size
-            _first[2] = 0
-            _first[3] += 1
-            _last[index] += 5 * address_size - 1
-            _last[2] = 255
-            _last[3] = 254
-        elif index < 4:
-            _first[index] += 4 * address_size
-            _first[3] += 1
-            _last[index] += 5 * address_size - 1
-            _last[3] = 254
-        else:
-            _first[index] += 4 * address_size
-            _last[index] += 5 * address_size - 1
-
-    elif subnet_placement == "sixth":
-        for octet in subnet_mask:
-            if octet == 255:
-                index += 1
-            else:
-                break
-        if index < 2:
-            _first[index] += 5 * address_size
-            _first[2] = 0
-            _first[3] += 1
-            _last[index] += 6 * address_size - 1
-            _last[2] = 255
-            _last[3] = 254
-        elif index < 4:
-            _first[index] += 5 * address_size
-            _first[3] += 1
-            _last[index] += 6 * address_size - 1
-            _last[3] = 254
-        else:
-            _first[index] += 5 * address_size
-            _last[index] += 6 * address_size - 1
-
-    elif subnet_placement == "seventh":
-        for octet in subnet_mask:
-            if octet == 255:
-                index += 1
-            else:
-                break
-        if index < 2:
-            _first[index] += 6 * address_size
-            _first[2] = 0
-            _first[3] += 1
-            _last[index] += 7 * address_size - 1
-            _last[2] = 255
-            _last[3] = 254
-        elif index < 4:
-            _first[index] += 6 * address_size
-            _first[3] += 1
-            _last[index] += 7 * address_size - 1
-            _last[3] = 254
-        else:
-            _first[index] += 6 * address_size
-            _last[index] += 7 * address_size - 1
-
-    elif subnet_placement == "eighth":
-        for octet in subnet_mask:
-            if octet == 255:
-                index += 1
-            else:
-                break
-        if index < 2:
-            _first[index] += 7 * address_size
-            _first[2] = 0
-            _first[3] += 1
-            _last[index] += 8 * address_size - 1
-            _last[2] = 255
-            _last[3] = 254
-        elif index < 4:
-            _first[index] += 7 * address_size
-            _first[3] += 1
-            _last[index] += 8 * address_size - 1
-            _last[3] = 254
-        else:
-            _first[index] += 7 * address_size
-            _last[index] += 8 * address_size - 1
-
+        _last[index] += _end * address_size - 1
+        _last[2] = 255
+        _last[3] = 254
+    elif index == 2:
+        _first[index] += _start * address_size
+        _first[3] += 1
+        _last[index] += _end * address_size - 1
+        _last[3] = 254
+    else:
+        _first[index] += _start * address_size + 1
+        _last[index] += _end * address_size - 1
+    
     return _first, _last
 
 
@@ -553,7 +418,7 @@ def check_user_choice(menu):
                     f"Invalid Input: Press the [{menu_option}] Key {action} or [E] to Exit the Program.")
             elif len(choice) > MAX_LENGTH:
                 raise ValueError(
-                    f"Error: Input is too long. Please keep it under {MAX_LENGTH} character.")
+                    f"Error: Provided too many characters. Please limit input to {MAX_LENGTH} character.")
             else:
                 raise ValueError(
                     f"Invalid Input: Press the [{menu_option}] Key {action} or [E] to Exit the Program.")
@@ -588,10 +453,10 @@ def generate_qna(ip, cidr, subnet_mask, subnet_id, bcast_address, place, first_l
         question = f"Which subnet does host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belong to?"
         answer = f"{subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]}{cidr}"
     elif num_roll == 5:
-        question = f"Your server needs to be assigned the last usable host address on the {place} subnet of network {parent_id[0]}.{parent_id[1]}.{parent_id[2]}.{parent_id[3]}{cidr}. What address would you assign to the server?"
+        question = f"Your server needs to be assigned the last usable host address on the {place[0]} subnet of network {parent_id[0]}.{parent_id[1]}.{parent_id[2]}.{parent_id[3]}{cidr}. What address would you assign to the server?"
         answer = f"{first_last_parent[1][0]}.{first_last_parent[1][1]}.{first_last_parent[1][2]}.{first_last_parent[1][3]}"
     elif num_roll == 6:
-        question = f"Your server needs to be assigned the last usable host address on the {place} subnet of network {parent_id[0]}.{parent_id[1]}.{parent_id[2]}.{parent_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. What address would you assign to the server?"
+        question = f"Your server needs to be assigned the last usable host address on the {place[0]} subnet of network {parent_id[0]}.{parent_id[1]}.{parent_id[2]}.{parent_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. What address would you assign to the server?"
         answer = f"{first_last_parent[1][0]}.{first_last_parent[1][1]}.{first_last_parent[1][2]}.{first_last_parent[1][3]}"
     elif num_roll == 7:
         question = f"What is the first valid host address on the subnet that host {ip[0]}.{ip[1]}.{ip[2]}.{ip[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]} belongs to?"
@@ -636,10 +501,10 @@ def generate_qna(ip, cidr, subnet_mask, subnet_id, bcast_address, place, first_l
         question = f"What is the last valid host on subnet {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}?"
         answer = f"{first_last_subnet[1][0]}.{first_last_subnet[1][1]}.{first_last_subnet[1][2]}.{first_last_subnet[1][3]}"
     elif num_roll == 21:
-        question = f"You have the following subnetted network {parent_id[0]}.{parent_id[1]}.{parent_id[2]}.{parent_id[3]}{cidr}. You need to assign your router the first usable host address on the {place} subnet. What address would you use?"
+        question = f"You have the following subnetted network {parent_id[0]}.{parent_id[1]}.{parent_id[2]}.{parent_id[3]}{cidr}. You need to assign your router the first usable host address on the {place[0]} subnet. What address would you use?"
         answer = f"{first_last_parent[0][0]}.{first_last_parent[0][1]}.{first_last_parent[0][2]}.{first_last_parent[0][3]}"
     elif num_roll == 22:
-        question = f"You have the following subnetted network {parent_id[0]}.{parent_id[1]}.{parent_id[2]}.{parent_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. You need to assign your router the first usable host address on the {place} subnet. What address would you use?"
+        question = f"You have the following subnetted network {parent_id[0]}.{parent_id[1]}.{parent_id[2]}.{parent_id[3]} {subnet_mask[0]}.{subnet_mask[1]}.{subnet_mask[2]}.{subnet_mask[3]}. You need to assign your router the first usable host address on the {place[0]} subnet. What address would you use?"
         answer = f"{first_last_parent[0][0]}.{first_last_parent[0][1]}.{first_last_parent[0][2]}.{first_last_parent[0][3]}"
     elif num_roll == 23:
         question = f"How many subnets are available with the network {subnet_id[0]}.{subnet_id[1]}.{subnet_id[2]}.{subnet_id[3]}{cidr}"
@@ -678,10 +543,10 @@ while user_input is True:
     parent_network_id = get_parent_network_id(
         variable_length_subnet_mask, ip_address)
     first_last_valid_subnet_hosts = get_first_last_subnet_hosts(
-        subnetted_network_id, broadcast_address)
+         subnetted_network_id, broadcast_address, address_block)
     placement = get_placement(variable_length_subnet_mask)
     first_last_parent_hosts = get_valid_parent_hosts(
-        parent_network_id, variable_length_subnet_mask, address_block, placement)
+         parent_network_id, variable_length_subnet_mask, address_block, placement[1])
     num_of_subnets = get_number_of_subnets(
         ip_address, variable_length_subnet_mask, possible_variable_masks)
     num_of_hosts = get_number_of_hosts(
